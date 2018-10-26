@@ -11,7 +11,7 @@ import java.util.UUID
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mConnectionClient: ConnectionsClient
 
-    private var opponentEndpointId: String? = null
+    private lateinit var opponentEndpointId: String
     private lateinit var opponentName: String
 
     private val strategy = Strategy.P2P_STAR
@@ -25,14 +25,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         status.text = "disconnected"
         mConnectionClient = Nearby.getConnectionsClient(this)
 
-        opponent_find.setOnClickListener(this)
+        opponent_find.setOnClickListener {
+            findOpponent()
+        }
     }
 
-
-    override fun onClick(p0: View?) {
-        findOpponent()
+    override fun onClick(v: View) {
+        when(v.id) {
+            opponent_find.id -> {
+                findOpponent()
+            }
+            disconnec_button.id -> {
+                disconnect()
+            }
+        }
     }
 
+    private fun disconnect() {
+        mConnectionClient.disconnectFromEndpoint(opponentEndpointId)
+    }
 
     private val mPayloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(p0: String, p1: Payload) {  }
