@@ -11,8 +11,8 @@ import java.util.UUID
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mConnectionClient: ConnectionsClient
 
-    private lateinit var opponentEndpointId: String
-    private lateinit var opponentName: String
+    private var opponentEndpointId: String? = null
+    private var opponentName: String? = null
 
     private val strategy = Strategy.P2P_STAR
     private val codeName = UUID.randomUUID().toString()
@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         status.text = "disconnected"
         mConnectionClient = Nearby.getConnectionsClient(this)
 
+        startAdverting()
+
         opponent_find.setOnClickListener {
             findOpponent()
         }
@@ -35,14 +37,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             opponent_find.id -> {
                 findOpponent()
             }
-            disconnec_button.id -> {
+            disconnect_button.id -> {
                 disconnect()
             }
         }
     }
 
     private fun disconnect() {
-        mConnectionClient.disconnectFromEndpoint(opponentEndpointId)
+        mConnectionClient.disconnectFromEndpoint(opponentEndpointId.toString())
+        status.text = "disconnected"
+        opponent_name.text = ""
     }
 
     private val mPayloadCallback = object : PayloadCallback() {
@@ -67,18 +71,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         override fun onDisconnected(p0: String) {
             opponentEndpointId = null
-            opponent_name.text = "disconnected"
+            opponent_name.text = null
         }
 
         override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
             when (p1.status.statusCode) {
                 ConnectionsStatusCodes.STATUS_OK -> {
                     mConnectionClient.stopDiscovery()
-                    mConnectionClient.stopAdvertising()
 
                     opponentEndpointId = p0
                     status.text = "connected"
-                    setOpponentName(opponentName)
+                    setOpponentName(opponentName.toString())
                 }
                 ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                     opponentEndpointId = null
@@ -91,7 +94,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun findOpponent () {
-        startAdverting()
+        mConnectionClient.stopAdvertising()
         startDiscovery()
         opponent_name.text = "Searching"
         opponent_find.isEnabled = false
