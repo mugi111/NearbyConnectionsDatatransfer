@@ -3,6 +3,7 @@ package com.mugi111.nearbyconnectionsdatatransfer
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,6 +26,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         status.text = "disconnected"
         mConnectionClient = Nearby.getConnectionsClient(this)
 
+        setContentView(R.layout.activity_main)
+
         startAdverting()
 
         opponent_find.setOnClickListener {
@@ -40,6 +43,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             disconnect_button.id -> {
                 disconnect()
             }
+            send_message.id -> {
+                sendMessage()
+            }
         }
     }
 
@@ -50,7 +56,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private val mPayloadCallback = object : PayloadCallback() {
-        override fun onPayloadReceived(p0: String, p1: Payload) {  }
+        override fun onPayloadReceived(p0: String, p1: Payload) {
+            Toast.makeText(applicationContext, String(p1.asBytes()!!), Toast.LENGTH_SHORT).show()
+        }
 
         override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {  }
     }
@@ -72,6 +80,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         override fun onDisconnected(p0: String) {
             opponentEndpointId = null
             opponent_name.text = null
+            opponent_find.isEnabled = true
         }
 
         override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
@@ -112,6 +121,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun setOpponentName(opponentName: String) {
         opponent_name.text = opponentName
+    }
+
+    private fun sendMessage() {
+        mConnectionClient.sendPayload(opponentEndpointId.toString(), Payload.fromBytes("aaa".toByteArray()))
     }
 
 }
