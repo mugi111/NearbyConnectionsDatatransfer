@@ -18,6 +18,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val strategy = Strategy.P2P_STAR
     private val codeName = UUID.randomUUID().toString()
 
+    private var endpointList: MutableList<String> = mutableListOf()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,6 +56,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         mConnectionClient.disconnectFromEndpoint(opponentEndpointId.toString())
         status.text = "disconnected"
         opponent_name.text = ""
+        opponent_find.isEnabled = true
     }
 
     private val mPayloadCallback = object : PayloadCallback() {
@@ -91,6 +95,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     opponentEndpointId = p0
                     status.text = "connected"
                     setOpponentName(opponentName.toString())
+                    endpointList.add(p0)
                 }
                 ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                     opponentEndpointId = null
