@@ -3,6 +3,8 @@ package com.mugi111.nearbyconnectionsdatatransfer
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.ListAdapter
 import android.widget.Toast
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
@@ -19,6 +21,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val codeName = UUID.randomUUID().toString()
 
     private var endpointList: MutableList<String> = mutableListOf()
+    var listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, endpointList)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +31,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         codename.text = codeName
         status.text = "disconnected"
         mConnectionClient = Nearby.getConnectionsClient(this)
+
 
         setContentView(R.layout.activity_main)
 
@@ -96,6 +100,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     status.text = "connected"
                     setOpponentName(opponentName.toString())
                     endpointList.add(p0)
+                    endpontId_List.adapter = listAdapter
                 }
                 ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                     opponentEndpointId = null
