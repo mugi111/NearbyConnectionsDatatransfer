@@ -8,8 +8,12 @@ import android.widget.Toast
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.*
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.util.*
+import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -144,7 +148,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun sendFileData(inputFile: File) {
+    private fun sendFileData() {
         var iStream: InputStream? = null
         var oStream: ZipOutputStream? = null
         var buf: ByteArray = byteArrayOf(1024.toByte())
@@ -155,7 +159,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             e.printStackTrace()
         }
 
-        iStream = FileInputStream(inputFile)
+        iStream = FileInputStream("/temp/sample")
+
+        var ze = ZipEntry("/temp/sample")
+
+        oStream!!.putNextEntry(ze)
+
+
     }
 
 }
