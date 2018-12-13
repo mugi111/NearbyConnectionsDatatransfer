@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         codename.text = codeName
         status.text = "disconnected"
         mConnectionClient = Nearby.getConnectionsClient(this)
-
+        endpontId_List.adapter = listAdapter
 
         setContentView(R.layout.activity_main)
 
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     status.text = "connected"
                     setOpponentName(opponentName.toString())
                     endpointList.add(p0)
-                    endpontId_List.adapter = listAdapter
+                    listAdapter.notifyDataSetChanged()
                 }
                 ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                     opponentEndpointId = null
