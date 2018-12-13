@@ -1,15 +1,16 @@
 package com.mugi111.nearbyconnectionsdatatransfer
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.ListAdapter
 import android.widget.Toast
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.UUID
+import java.io.*
+import java.util.*
+import java.util.zip.ZipOutputStream
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mConnectionClient: ConnectionsClient
@@ -20,20 +21,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val strategy = Strategy.P2P_STAR
     private val codeName = UUID.randomUUID().toString()
 
-    private var endpointList: MutableList<String> = mutableListOf()
-    var listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, endpointList)
+    private var endpointList = mutableListOf<String>()
+    private lateinit var arrayAdapter: ArrayAdapter<String>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, endpointList)
+        endpontId_List.adapter = arrayAdapter
 
         codename.text = codeName
         status.text = "disconnected"
         mConnectionClient = Nearby.getConnectionsClient(this)
-        endpontId_List.adapter = listAdapter
-
-        setContentView(R.layout.activity_main)
 
         startAdverting()
 
@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun disconnect() {
         mConnectionClient.disconnectFromEndpoint(opponentEndpointId.toString())
+        endpointList.remove(opponentEndpointId.toString())
         status.text = "disconnected"
         opponent_name.text = ""
         opponent_find.isEnabled = true
@@ -88,7 +89,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         override fun onDisconnected(p0: String) {
             opponentEndpointId = null
             opponent_name.text = null
+            status.text = null
             opponent_find.isEnabled = true
+            endpointList.remove(p0)
+            arrayAdapter.notifyDataSetChanged()
+            startAdverting()
         }
 
         override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
@@ -100,7 +105,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     status.text = "connected"
                     setOpponentName(opponentName.toString())
                     endpointList.add(p0)
-                    listAdapter.notifyDataSetChanged()
+                    arrayAdapter.notifyDataSetChanged()
                 }
                 ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                     opponentEndpointId = null
@@ -134,7 +139,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun sendMessage() {
-        mConnectionClient.sendPayload(opponentEndpointId.toString(), Payload.fromBytes("aaa".toByteArray()))
+        for (endpoint in endpointList) {
+            mConnectionClient.sendPayload(endpoint, Payload.fromBytes("data".toByteArray()))
+        }
+    }
+
+    private fun sendFileData(inputFile: File) {
+        var iStream: InputStream? = null
+        var oStream: ZipOutputStream? = null
+        var buf: ByteArray = byteArrayOf(1024.toByte())
+
+        try {
+            oStream = ZipOutputStream(FileOutputStream("/temp/temp.zip"))
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+
+        iStream = FileInputStream(inputFile)
     }
 
 }
